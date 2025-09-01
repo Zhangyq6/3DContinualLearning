@@ -1,0 +1,113 @@
+optimizer : {
+  type: AdamW,
+  kwargs: {
+  lr : 0.0005,
+  weight_decay : 0.05
+}}
+
+scheduler: {
+  type: CosLR,
+  kwargs: {
+    epochs: 300,
+    initial_epochs : 10
+}}
+
+dataset : {
+  train : { _base_: cfgs/dataset_configs/ModelNet40.yaml,
+            others: {subset: 'train'}},
+  val : { _base_: cfgs/dataset_configs/ModelNet40.yaml,
+            others: {subset: 'test'}},
+  test : { _base_: cfgs/dataset_configs/ModelNet40.yaml,
+            others: {subset: 'test'}}}
+model : {
+  NAME: PointTransformer_pointtokenprompt, # PointTransformer_pointtokenprompt PointTransformer_best
+  trans_dim: 384,
+  depth: 12,
+  drop_path_rate: 0.1,
+  if_half: False,
+  cls_dim: 40,
+  num_heads: 6,
+  group_size: 32,
+  num_group: 64,
+  encoder_dims: 384,
+  adapter_config: {
+    adapter_dim: 16,
+    adapter_drop_path_rate: 0.1,
+  },
+  point_number: 5,
+  scale: 0.01,
+  factor: 5,
+  perturbation: 0.05,
+  point_prompt: True,
+  shift_net: True,
+  prompt_depth: 6,
+  scaler: False,
+  num_tokens: 10,
+  propagation_type: 'permutation_after_attention',
+  prompt_pool: true,
+  size: 10,
+  top_k: 1,
+  initializer: "uniform",
+  prompt_key: true,
+  prompt_key_init: "uniform",
+  use_prompt_mask: false,
+  shared_prompt_pool: false,
+  shared_prompt_key: false,
+  batchwise_prompt: true,
+  embedding_key: "cls",
+  predefined_key: "",
+  pull_constraint: true,
+  pull_constraint_coeff: 0.1,
+  head_type: "prompt",
+}
+
+original_model : {
+  NAME: PointTransformer,
+  trans_dim: 384,
+  depth: 12,
+  drop_path_rate: 0.1,
+  if_half: False,
+  cls_dim: 40,
+  num_heads: 6,
+  group_size: 32,
+  num_group: 64,
+  encoder_dims: 384,
+}
+
+
+npoints: 1024
+total_bs : 32
+step_per_update : 1
+max_epoch : 400
+grad_norm_clip : 10
+
+prefix: " "
+memory_size: 0
+memory_per_class: 0
+fixed_memory: false
+shuffle: true
+init_cls: 4
+increment: 4
+model_name: "l2p"
+# backbone_type: "vit_base_patch16_224_l2p"
+backbone_type: "pointmae_l2p"
+get_original_backbone: true
+device: [0]
+seed: 1993
+
+tuned_epoch: 50
+init_lr: 0.001875
+batch_size: 256
+weight_decay: 0
+min_lr: 1e-5
+optimizer: "adam"
+scheduler: "constant"
+reinit_optimizer: true
+
+global_pool: "token"
+freeze: ["blocks", "norm", "pos_embed"]
+
+pretrained: true
+drop: 0.0
+drop_path: 0.0
+
